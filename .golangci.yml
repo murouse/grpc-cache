@@ -1,0 +1,164 @@
+version: "2"
+run:
+  concurrency: 8
+  issues-exit-code: 1
+  tests: true
+output:
+  formats:
+    tab:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+linters:
+  default: none
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - cyclop
+    - decorder
+    - dogsled
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - forbidigo
+    - funlen
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosmopolitan
+    - govet
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - mnd
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - recvcheck
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - tagliatelle
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - zerologlint
+  settings:
+    cyclop:
+      max-complexity: 15
+
+    errcheck:
+      exclude-functions:
+        - (*os.File).Close
+        - (*github.com/xuri/excelize/v2.File).Close
+        - (*google.golang.org/grpc.ClientConn).Close
+        - (google.golang.org/grpc.ClientStream).CloseSend
+        - (*database/sql.DB).Close
+        - (mime/multipart.File).Close
+        - (*github.com/minio/minio-go/v7.Object).Close
+        - (io.ReadCloser).Close
+    nlreturn:
+      block-size: 2
+    perfsprint:
+      errorf: false
+      sprintf1: false
+      strconcat: false
+    tagliatelle:
+      case:
+        rules:
+          avro: snake
+          bson: snake
+          env: upperSnake
+          envconfig: upperSnake
+          json: snake
+          mapstructure: snake
+          toml: snake
+          xml: snake
+          yaml: snake
+        use-field-name: false
+    varnamelen:
+      ignore-decls:
+        - t testing.T
+  exclusions:
+    generated: lax
+    paths:
+      - .+_test.go
+      - pkg/*
+      - vendor/*
+      - internal/pb/*
+      - .*/mocks/.*
+      - internal/infrastructure/postgres/dao-wrapper
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 10
+  new: false
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/murouse/grpc-cache)
+  exclusions:
+    generated: lax
+    paths:
+      - pkg/*
+      - vendor/*
+      - .*/mocks/.*
+      - third_party$
+      - builtin$
+      - examples$

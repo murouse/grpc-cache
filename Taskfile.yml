@@ -1,0 +1,29 @@
+version: '3'
+
+tasks:
+  # Генерация
+  gen:
+    cmds:
+      - mkdir -p pkg/api
+      - |
+        protoc -I api \
+          --go_out=paths=source_relative:pkg/api \
+          --go-grpc_out=paths=source_relative:pkg/api \
+          api/murouse/grpc-cache/v1/grpc_cache.proto
+  # maksimgrekov@MacBook-Pro-Maksim grpc-cache % protoc --version
+  # libprotoc 3.19.6
+
+  # Линтинг
+  lint:
+    cmds:
+      - PATH={{.LOCAL_BIN}}:{{.PATH}} golangci-lint run --config=.golangci.yml
+
+  # Линтинг с исправлениями
+  lint:fix:
+    cmds:
+      - PATH={{.LOCAL_BIN}}:{{.PATH}} golangci-lint run --fix --config=.golangci.yml
+
+  # Запуск юнит-тестов
+  test:
+    cmds:
+      - go test ./...
