@@ -3,7 +3,7 @@ package grpccache
 import (
 	"time"
 
-	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc-cache/v1"
+	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 

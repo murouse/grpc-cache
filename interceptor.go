@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/murouse/golgi/attr"
-	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc-cache/v1"
+	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
