@@ -7,14 +7,16 @@ import (
 	"log/slog"
 
 	"github.com/murouse/golgi/attr"
-	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
+
+	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 )
 
+// nolint
 func (c *GrpcCache) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (
 		any, error,
@@ -133,6 +135,7 @@ func (c *GrpcCache) loadMethodPolicies() {
 						slog.String("method", fullMethodName),
 						slog.Any("error", err),
 					)
+
 					continue
 				}
 

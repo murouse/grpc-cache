@@ -78,5 +78,6 @@ func defaultCacheKeyFormatter(namespace, version, fullMethod, actor string, req 
 	sum := hex.EncodeToString(h.Sum(nil))
 
 	const sep = ":"
+
 	return strings.Join([]string{"grpc-cache", namespace, version, fullMethod, actor, sum}, sep), nil
 }

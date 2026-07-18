@@ -4,10 +4,11 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/murouse/grpc-cache/internal/cache"
-	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 	"golang.org/x/sync/singleflight"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"github.com/murouse/grpc-cache/internal/cache"
+	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1"
 )
 
 type GrpcCache struct {
