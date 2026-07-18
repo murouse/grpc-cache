@@ -5,22 +5,15 @@ package murouse.grpc_cache.v1;
 option go_package = "github.com/murouse/grpc-cache/pkg/api/murouse/grpc_cache/v1;grpccachev1";
 
 import "google/protobuf/descriptor.proto";
-
-message Rule {
-  repeated Role any_of = 1; // Достаточно иметь ХОТЯ БЫ ОДНУ из этих ролей (OR)
-  repeated Role all_of = 2; // Нужно иметь ВСЕ эти роли одновременно (AND)
-
-  repeated Rule nested_any_of = 3; // Связываются через ИЛИ (Хотя бы одно вложенное правило должно сработать)
-  repeated Rule nested_all_of = 4; // Связываются через И (Все вложенные правила должны сработать)
-};
+import "google/protobuf/duration.proto";
 
 message Policy {
-  bool allow_unauthenticated = 1;
-  optional Rule rule = 2;
+  google.protobuf.Duration ttl = 1; // Cache entry lifetime. ttl == 0 -> don't expired
+  bool actor_scoped = 2;            // Whether the cache key should include the request actor
 }
 
 extend google.protobuf.MethodOptions {
-  Policy policy = 51235;
+  Policy policy = 51236;
 }
 
 // копировать строго с сохранением номера! иначе необходимо регистрировать свой extension
