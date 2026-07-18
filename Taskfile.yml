@@ -9,7 +9,7 @@ tasks:
         protoc -I api \
           --go_out=paths=source_relative:pkg/api \
           --go-grpc_out=paths=source_relative:pkg/api \
-          api/murouse/grpc-cache/v1/grpc_cache.proto
+          api/murouse/grpc_cache/v1/grpc_cache.proto
   # maksimgrekov@MacBook-Pro-Maksim grpc-cache % protoc --version
   # libprotoc 3.19.6
 
