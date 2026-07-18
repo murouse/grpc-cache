@@ -6,6 +6,7 @@ import (
 
 	"github.com/murouse/grpc-cache/internal/cache"
 	pb "github.com/murouse/grpc-cache/pkg/api/murouse/grpc-cache/v1"
+	"golang.org/x/sync/singleflight"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -24,6 +25,7 @@ type GrpcCache struct {
 
 	methodPolicies  map[string]Policy
 	methodRulesOnce sync.Once
+	sfGroup         singleflight.Group
 }
 
 func New(opts ...Option) *GrpcCache {

@@ -53,47 +53,54 @@ func (c *GrpcCache) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		switch {
 		case err == nil: // Если нашли в кэше
 			res := policy.ResponseType.New().Interface() // Создаем response
-			if err = proto.Unmarshal([]byte(value), res); err != nil {
-				c.logger.ErrorContext(ctx, "proto unmarshal response", attr.Error(err))
-				return nil, fmt.Errorf("unmarshal cache response: %w", err)
+			if uErr := proto.Unmarshal([]byte(value), res); uErr != nil {
+				// Битая запись в кэше: не отдаём ошибку клиенту, лечим как промах —
+				// пересчитаем через хендлер и перезапишем ниже.
+				c.logger.ErrorContext(ctx, "proto unmarshal cached response, recomputing", attr.Error(uErr))
+			} else {
+				return res, nil
 			}
-			return res, nil
 
-		case !errors.Is(err, c.cacheMissError): // Если ошибка кэша
+		case !errors.Is(err, c.cacheMissError): // Если ошибка кэша (не промах)
 			switch c.cacheFailurePolicy {
 			case CacheFailurePolicyFallbackToHandler:
 				return fallback()
 			case CacheFailurePolicyReturnError:
-				return nil, fmt.Errorf("cache get")
+				return nil, fmt.Errorf("cache get: %w", err)
 			default:
 				return nil, fmt.Errorf("unknown cache failure policy: %d", c.cacheFailurePolicy)
 			}
 		}
 
-		// Если cache miss
-		res, err := fallback()
-		if err != nil {
-			return res, err // при ошибке хендлера возвращаем как есть
-		}
+		// Промах (или битая запись): считаем ответ через хендлер.
+		// singleflight схлопывает конкурентные запросы с одним ключом в один вызов.
+		res, err, _ := c.sfGroup.Do(key, func() (any, error) {
+			r, hErr := handler(ctx, req)
+			if hErr != nil {
+				return r, hErr // ошибку хендлера не кэшируем
+			}
 
-		r, ok := res.(proto.Message)
-		if !ok {
-			c.logger.ErrorContext(ctx, "response does not implement proto.Message")
-			return res, nil
-		}
+			msg, ok := r.(proto.Message)
+			if !ok {
+				c.logger.ErrorContext(ctx, "response does not implement proto.Message")
+				return r, nil
+			}
 
-		b, err := proto.MarshalOptions{Deterministic: true}.Marshal(r)
-		if err != nil {
-			c.logger.ErrorContext(ctx, "marshal proto response", attr.Error(err))
-			return res, nil
-		}
+			b, mErr := proto.MarshalOptions{Deterministic: true}.Marshal(msg)
+			if mErr != nil {
+				c.logger.ErrorContext(ctx, "marshal proto response", attr.Error(mErr))
+				return r, nil
+			}
 
-		if _, err = c.cache.Set(ctx, key, b, policy.TTL); err != nil {
-			c.logger.ErrorContext(ctx, "cache set", attr.Error(err))
-		}
+			// Отвязываем контекст: отмена/дедлайн клиента не должны срывать запись в кэш.
+			if _, sErr := c.cache.Set(context.WithoutCancel(ctx), key, b, policy.TTL); sErr != nil {
+				c.logger.ErrorContext(ctx, "cache set", attr.Error(sErr))
+			}
 
-		return res, nil
+			return r, nil
+		})
 
+		return res, err
 	}
 }
 

@@ -19,9 +19,14 @@ func WithLogger(logger *slog.Logger) Option {
 	}
 }
 
-func WithEnvironment(namespace, version string) Option {
+func WithNamespace(namespace string) Option {
 	return func(c *GrpcCache) {
 		c.namespace = namespace
+	}
+}
+
+func WithVersion(version string) Option {
+	return func(c *GrpcCache) {
 		c.version = version
 	}
 }
